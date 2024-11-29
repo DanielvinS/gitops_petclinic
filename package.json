@@ -10,10 +10,15 @@
   "keywords": [],
   "author": "",
   "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.4.0",
     "@types/node": "^22.10.1",
-    "prisma": "^6.0.0"
+    "mermaid-cli": "link:@mermaid-js\\mermaid-cli",
+    "prisma": "^6.0.0",
+    "prisma-erd-generator": "^1.11.2"
   },
   "dependencies": {
+    "@prisma/client": "6.0.0",
+    "prisma-dbml-generator": "^0.12.0",
     "typescript": "^5.7.2"
   }
 }

@@ -1,0 +1,297 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// REF: https://www.npmjs.com/package/prisma-dbml-generator
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+// REF: https://www.npmjs.com/package/prisma-erd-generator
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
+// NOTE: SQLite가 enum 지원 안 함
+// enum CoreCompetency {
+//   SERVANTLEADERSHIP
+//   EMPATHICCOMMUNICATION
+//   CREATIVITY
+//   FLEXIBILITY
+//   KNOWLEDGESEEKING
+//   PROBLEMSOLVING
+//   ASIANCULTUREUNDERSTANDING
+//   GLOBALMIND
+// }
+
+// 1. 학생 정보
+model Student {
+  id                           Int     @id @default(autoincrement())
+  calendarId                   Int     @unique
+  ProfessorId                  Int     @unique
+  name                         String
+  department                   String?
+  email                        String  @unique
+  academicScheduleSubscription Boolean //학사일정 구독여부
+
+  calendar                   Calendar                     @relation(fields: [calendarId], references: [id])
+  professor                  Professor                    @relation(fields: [ProfessorId], references: [id])
+  ProgramApplication         ProgramApplication[]
+  PersonalizedRecommendation PersonalizedRecommendation[]
+  ReferralProgramInquiry     ReferralProgramInquiry?
+  Team                       Team[]
+  TeamMember                 TeamMember[]
+  TeamMeetingAttendance      TeamMeetingAttendance[]
+  TeamNotification           TeamNotification[]
+}
+
+// 2. 개인캘린더
+model Calendar {
+  id          Int     @id @default(autoincrement())
+  name        String
+  isHidden    Boolean
+  viewOptions String //숨김표시
+  color       String // #fff -> 문자열 생상
+
+  Student          Student?
+  PersonalSchedule PersonalSchedule?
+  Professor        Professor[]
+}
+
+// 3. 개인일정
+model PersonalSchedule {
+  id          Int      @id @default(autoincrement())
+  calenderId  Int      @unique
+  name        String
+  description String //상세설명
+  startDate   DateTime
+  endDate     DateTime
+  isPublic    Boolean //정보공개여부
+  priority    Int //우선순위
+
+  calendar Calendar @relation(fields: [calenderId], references: [id])
+}
+
+// 4. 비교과 프로그램 
+model Program {
+  id                   Int      @id @default(autoincrement())
+  name                 String
+  content              String //비교과프로그램 내용
+  startTime            DateTime //운영시작일시
+  endTime              DateTime //운영종료 일시
+  applicationStartTime DateTime //접수시작일시
+  applicationEndTime   DateTime //접수종료일시
+  programManager       String //프로그램 담당자
+  target               String // 신청대상
+
+  ProgramApplication         ProgramApplication[]
+  PersonalizedRecommendation PersonalizedRecommendation[]
+  ProfessorRecommendation    ProfessorRecommendation?
+  ReferralProgramInquiry     ReferralProgramInquiry?
+}
+
+// 5. 프로그램 신청
+model ProgramApplication {
+  studentId         Int
+  programId         Int
+  applicationType   String
+  applicationDate   DateTime
+  applicationStatus String //신청대상
+
+  student Student @relation(fields: [studentId], references: [id])
+  program Program @relation(fields: [programId], references: [id])
+
+  @@id([studentId, programId])
+}
+
+// 6. 개인맞춤 추천 
+model PersonalizedRecommendation {
+  studentId            Int
+  programId            Int
+  application          Boolean //신청 여부
+  inquiry              Boolean //조회여부
+  applicationStartDate DateTime
+  applicationEndDate   DateTime
+
+  student Student @relation(fields: [studentId], references: [id])
+  program Program @relation(fields: [programId], references: [id])
+
+  @@id([studentId, programId])
+}
+
+// 7. 교수정보
+model Professor {
+  id         Int    @id @default(autoincrement())
+  calendarId Int
+  name       String
+  contact    String
+  department String
+  email      String
+
+  calendar                Calendar                  @relation(fields: [calendarId], references: [id])
+  Student                 Student?
+  ProfessorRecommendation ProfessorRecommendation[]
+  ReferralProgramInquiry  ReferralProgramInquiry?
+}
+
+// 8. 교수추천
+model ProfessorRecommendation {
+  professorId        Int
+  programId          Int      @unique
+  recommendationTime DateTime //추천한 시간
+  recommendationType String //추천구분
+
+  professor Professor @relation(fields: [professorId], references: [id])
+  program   Program   @relation(fields: [programId], references: [id])
+}
+
+// 9. 교수추천 프로그램 조회
+model ReferralProgramInquiry {
+  programId            Int      @unique
+  professorId          Int      @unique
+  studentId            Int      @unique
+  application          Int //신청 여부
+  inquiry              Int //조회여부
+  refuse               String //거절사유
+  inquiryTime          DateTime //조회시간
+  applicationStartDate DateTime
+  applicationEndDate   DateTime
+
+  program   Program   @relation(fields: [programId], references: [id])
+  professor Professor @relation(fields: [professorId], references: [id])
+  student   Student   @relation(fields: [studentId], references: [id])
+}
+
+// 10.팀 정보
+model Team {
+  id             Int      @id @default(autoincrement())
+  leaderId       Int //팀장학번
+  teamCalendarId Int
+  name           String
+  creationDate   DateTime //팀생성날짜
+  status         String //팀상태
+  memberCount    Int //팀원수
+  meetingCount   Int //총회의수
+
+  leader                Student                 @relation(fields: [leaderId], references: [id])
+  calendar              TeamCalendar            @relation(fields: [teamCalendarId], references: [id])
+  TeamMember            TeamMember[]
+  TeamMeetingAttendance TeamMeetingAttendance[]
+  TeamNotification      TeamNotification[]
+}
+
+// 11. 팀원 정보
+model TeamMember {
+  teamId       Int
+  studentId    Int
+  absenceCount Int //결석회횟수
+
+  team    Team    @relation(fields: [teamId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+
+  // 복합 키 선언
+  @@id([teamId, studentId])
+}
+
+// 12. 팀 캘린더
+model TeamCalendar {
+  id          Int     @id @default(autoincrement())
+  name        String
+  isHidden    Boolean //숨김표시
+  viewOptions String //보기옵션
+  color       String
+
+  Team                Team[]
+  TeamMeetingSchedule TeamMeetingSchedule[]
+}
+
+// 13. 팀 회의 일정
+model TeamMeetingSchedule {
+  id                        Int      @id @default(autoincrement())
+  teamCalendarId            Int
+  name                      String
+  description               String //일정 설명
+  startDate                 DateTime
+  endDate                   DateTime
+  location                  String //회의 장소
+  notificationStartTime     DateTime
+  activityTime              Int //활동 시간
+  activityContent           String //활동내용
+  feedback                  String //활동평가 및 기타의견
+  representativePhoto       String //활동사진
+  notificationStartSettings String //알림시작설정
+  notificationContent       String //알림내용
+
+  teamCalendar          TeamCalendar            @relation(fields: [teamCalendarId], references: [id])
+  TeamMeetingAttendance TeamMeetingAttendance[]
+  TeamNotification      TeamNotification[]
+}
+
+// 14. 팀 회의 출석 정보
+model TeamMeetingAttendance {
+  scheduleId       Int
+  teamId           Int
+  studentId        Int
+  attendanceStatus Boolean //출석여부
+  absenceReason    String //결석사유
+
+  schedule TeamMeetingSchedule @relation(fields: [scheduleId], references: [id])
+  team     Team                @relation(fields: [teamId], references: [id])
+  student  Student             @relation(fields: [studentId], references: [id])
+
+  @@id([scheduleId, teamId, studentId])
+}
+
+// 15 팀 일정 등록 알림정보
+model TeamNotification {
+  meetingScheduleId   Int
+  teamId              Int
+  studentId           Int
+  receptionStatus     Boolean // 수신 확인 여부
+  transmissionTime    DateTime // 알림 전송 시간
+  receptionTime       DateTime? // 알림 수신 여부 (null이면 수신 안 됨, 시간 데이터 있으면 수신됨 처리)
+  notificationContent String // 알림내용
+
+  teamMeetingSchedule TeamMeetingSchedule @relation(fields: [meetingScheduleId], references: [id])
+  team                Team                @relation(fields: [teamId], references: [id])
+  student             Student             @relation(fields: [studentId], references: [id])
+
+  @@id([meetingScheduleId, teamId, studentId])
+}
+
+// 16. 스터디룸 정보
+model StudyRoom {
+  id       Int    @id @default(autoincrement())
+  name     String
+  location String //스터디룸 장소
+
+  StudyRoomDate StudyRoomDate[]
+}
+
+// 스터디룸 날짜 정보
+model StudyRoomDate {
+  date        DateTime @id
+  roomId      Int
+  isAvailable Boolean //예약 가능 여부
+
+  studyRoom     StudyRoom       @relation(fields: [roomId], references: [id])
+  StudyRoomTime StudyRoomTime[]
+}
+
+model StudyRoomTime {
+  reservationTime Int      @id @default(autoincrement()) //예약타입
+  dateId          DateTime // 
+  roomId          Int
+  scheduleID      Int
+  startTime       DateTime
+  endTime         DateTime
+
+  // 참조 관계 정의
+  studyRoomDate StudyRoomDate @relation(fields: [dateId], references: [date])
+}

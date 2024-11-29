@@ -1,0 +1,292 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Student {
+  id Int [pk, increment]
+  calendarId Int [unique, not null]
+  ProfessorId Int [unique, not null]
+  name String [not null]
+  department String
+  email String [unique, not null]
+  academicScheduleSubscription Boolean [not null]
+  calendar Calendar [not null]
+  professor Professor [not null]
+  ProgramApplication ProgramApplication [not null]
+  PersonalizedRecommendation PersonalizedRecommendation [not null]
+  ReferralProgramInquiry ReferralProgramInquiry
+  Team Team [not null]
+  TeamMember TeamMember [not null]
+  TeamMeetingAttendance TeamMeetingAttendance [not null]
+  TeamNotification TeamNotification [not null]
+}
+
+Table Calendar {
+  id Int [pk, increment]
+  name String [not null]
+  isHidden Boolean [not null]
+  viewOptions String [not null]
+  color String [not null]
+  Student Student
+  PersonalSchedule PersonalSchedule
+  Professor Professor [not null]
+}
+
+Table PersonalSchedule {
+  id Int [pk, increment]
+  calenderId Int [unique, not null]
+  name String [not null]
+  description String [not null]
+  startDate DateTime [not null]
+  endDate DateTime [not null]
+  isPublic Boolean [not null]
+  priority Int [not null]
+  calendar Calendar [not null]
+}
+
+Table Program {
+  id Int [pk, increment]
+  name String [not null]
+  content String [not null]
+  startTime DateTime [not null]
+  endTime DateTime [not null]
+  applicationStartTime DateTime [not null]
+  applicationEndTime DateTime [not null]
+  programManager String [not null]
+  target String [not null]
+  ProgramApplication ProgramApplication [not null]
+  PersonalizedRecommendation PersonalizedRecommendation [not null]
+  ProfessorRecommendation ProfessorRecommendation
+  ReferralProgramInquiry ReferralProgramInquiry
+}
+
+Table ProgramApplication {
+  studentId Int [not null]
+  programId Int [not null]
+  applicationType String [not null]
+  applicationDate DateTime [not null]
+  applicationStatus String [not null]
+  student Student [not null]
+  program Program [not null]
+
+  indexes {
+    (studentId, programId) [pk]
+  }
+}
+
+Table PersonalizedRecommendation {
+  studentId Int [not null]
+  programId Int [not null]
+  application Boolean [not null]
+  inquiry Boolean [not null]
+  applicationStartDate DateTime [not null]
+  applicationEndDate DateTime [not null]
+  student Student [not null]
+  program Program [not null]
+
+  indexes {
+    (studentId, programId) [pk]
+  }
+}
+
+Table Professor {
+  id Int [pk, increment]
+  calendarId Int [not null]
+  name String [not null]
+  contact String [not null]
+  department String [not null]
+  email String [not null]
+  calendar Calendar [not null]
+  Student Student
+  ProfessorRecommendation ProfessorRecommendation [not null]
+  ReferralProgramInquiry ReferralProgramInquiry
+}
+
+Table ProfessorRecommendation {
+  professorId Int [not null]
+  programId Int [unique, not null]
+  recommendationTime DateTime [not null]
+  recommendationType String [not null]
+  professor Professor [not null]
+  program Program [not null]
+}
+
+Table ReferralProgramInquiry {
+  programId Int [unique, not null]
+  professorId Int [unique, not null]
+  studentId Int [unique, not null]
+  application Int [not null]
+  inquiry Int [not null]
+  refuse String [not null]
+  inquiryTime DateTime [not null]
+  applicationStartDate DateTime [not null]
+  applicationEndDate DateTime [not null]
+  program Program [not null]
+  professor Professor [not null]
+  student Student [not null]
+}
+
+Table Team {
+  id Int [pk, increment]
+  leaderId Int [not null]
+  teamCalendarId Int [not null]
+  name String [not null]
+  creationDate DateTime [not null]
+  status String [not null]
+  memberCount Int [not null]
+  meetingCount Int [not null]
+  leader Student [not null]
+  calendar TeamCalendar [not null]
+  TeamMember TeamMember [not null]
+  TeamMeetingAttendance TeamMeetingAttendance [not null]
+  TeamNotification TeamNotification [not null]
+}
+
+Table TeamMember {
+  teamId Int [not null]
+  studentId Int [not null]
+  absenceCount Int [not null]
+  team Team [not null]
+  student Student [not null]
+
+  indexes {
+    (teamId, studentId) [pk]
+  }
+}
+
+Table TeamCalendar {
+  id Int [pk, increment]
+  name String [not null]
+  isHidden Boolean [not null]
+  viewOptions String [not null]
+  color String [not null]
+  Team Team [not null]
+  TeamMeetingSchedule TeamMeetingSchedule [not null]
+}
+
+Table TeamMeetingSchedule {
+  id Int [pk, increment]
+  teamCalendarId Int [not null]
+  name String [not null]
+  description String [not null]
+  startDate DateTime [not null]
+  endDate DateTime [not null]
+  location String [not null]
+  notificationStartTime DateTime [not null]
+  activityTime Int [not null]
+  activityContent String [not null]
+  feedback String [not null]
+  representativePhoto String [not null]
+  notificationStartSettings String [not null]
+  notificationContent String [not null]
+  teamCalendar TeamCalendar [not null]
+  TeamMeetingAttendance TeamMeetingAttendance [not null]
+  TeamNotification TeamNotification [not null]
+}
+
+Table TeamMeetingAttendance {
+  scheduleId Int [not null]
+  teamId Int [not null]
+  studentId Int [not null]
+  attendanceStatus Boolean [not null]
+  absenceReason String [not null]
+  schedule TeamMeetingSchedule [not null]
+  team Team [not null]
+  student Student [not null]
+
+  indexes {
+    (scheduleId, teamId, studentId) [pk]
+  }
+}
+
+Table TeamNotification {
+  meetingScheduleId Int [not null]
+  teamId Int [not null]
+  studentId Int [not null]
+  receiptStatus DateTime
+  transmissionTime DateTime [not null]
+  teamMeetingSchedule TeamMeetingSchedule [not null]
+  team Team [not null]
+  student Student [not null]
+
+  indexes {
+    (meetingScheduleId, teamId, studentId) [pk]
+  }
+}
+
+Table StudyRoom {
+  id Int [pk, increment]
+  name String [not null]
+  location String [not null]
+  StudyRoomDate StudyRoomDate [not null]
+}
+
+Table StudyRoomDate {
+  date DateTime [pk]
+  roomId Int [not null]
+  isAvailable Boolean [not null]
+  studyRoom StudyRoom [not null]
+  StudyRoomTime StudyRoomTime [not null]
+}
+
+Table StudyRoomTime {
+  timeSlot Int [pk, increment]
+  dateId DateTime [not null]
+  roomId Int [not null]
+  scheduleID Int [not null]
+  startTime DateTime [not null]
+  endTime DateTime [not null]
+  studyRoomDate StudyRoomDate [not null]
+}
+
+Ref: Student.calendarId - Calendar.id
+
+Ref: Student.ProfessorId - Professor.id
+
+Ref: PersonalSchedule.calenderId - Calendar.id
+
+Ref: ProgramApplication.studentId > Student.id
+
+Ref: ProgramApplication.programId > Program.id
+
+Ref: PersonalizedRecommendation.studentId > Student.id
+
+Ref: PersonalizedRecommendation.programId > Program.id
+
+Ref: Professor.calendarId > Calendar.id
+
+Ref: ProfessorRecommendation.professorId > Professor.id
+
+Ref: ProfessorRecommendation.programId - Program.id
+
+Ref: ReferralProgramInquiry.programId - Program.id
+
+Ref: ReferralProgramInquiry.professorId - Professor.id
+
+Ref: ReferralProgramInquiry.studentId - Student.id
+
+Ref: Team.leaderId > Student.id
+
+Ref: Team.teamCalendarId > TeamCalendar.id
+
+Ref: TeamMember.teamId > Team.id
+
+Ref: TeamMember.studentId > Student.id
+
+Ref: TeamMeetingSchedule.teamCalendarId > TeamCalendar.id
+
+Ref: TeamMeetingAttendance.scheduleId > TeamMeetingSchedule.id
+
+Ref: TeamMeetingAttendance.teamId > Team.id
+
+Ref: TeamMeetingAttendance.studentId > Student.id
+
+Ref: TeamNotification.meetingScheduleId > TeamMeetingSchedule.id
+
+Ref: TeamNotification.teamId > Team.id
+
+Ref: TeamNotification.studentId > Student.id
+
+Ref: StudyRoomDate.roomId > StudyRoom.id
+
+Ref: StudyRoomTime.dateId > StudyRoomDate.date

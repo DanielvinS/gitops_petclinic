@@ -2,7 +2,11 @@
   "name": "test",
   "version": "1.0.0",
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "generate": "prisma generate",
+    "db:push": "prisma db push",
+    "studio": "prisma studio"
+  },
   "keywords": [],
   "author": "",
   "devDependencies": {

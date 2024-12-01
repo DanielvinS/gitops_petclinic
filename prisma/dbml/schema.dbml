@@ -7,6 +7,7 @@ Table Student {
   calendarId Int [unique, not null]
   ProfessorId Int [unique, not null]
   name String [not null]
+  contact String [not null]
   department String
   email String [unique, not null]
   academicScheduleSubscription Boolean [not null]
@@ -42,6 +43,7 @@ Table PersonalSchedule {
   isPublic Boolean [not null]
   priority Int [not null]
   calendar Calendar [not null]
+  professorId Int
 }
 
 Table Program {
@@ -97,7 +99,7 @@ Table Professor {
   department String [not null]
   email String [not null]
   calendar Calendar [not null]
-  Student Student
+  Student Student [not null]
   ProfessorRecommendation ProfessorRecommendation [not null]
   ReferralProgramInquiry ReferralProgramInquiry
 }
@@ -179,7 +181,7 @@ Table TeamMeetingSchedule {
   representativePhoto String [not null]
   notificationStartSettings String [not null]
   notificationContent String [not null]
-  teamCalendar TeamCalendar [not null]
+  TeamCalendar TeamCalendar [not null]
   TeamMeetingAttendance TeamMeetingAttendance [not null]
   TeamNotification TeamNotification [not null]
 }
@@ -190,7 +192,7 @@ Table TeamMeetingAttendance {
   studentId Int [not null]
   attendanceStatus Boolean [not null]
   absenceReason String [not null]
-  schedule TeamMeetingSchedule [not null]
+  TeamMeetingSchedule TeamMeetingSchedule [not null]
   team Team [not null]
   student Student [not null]
 
@@ -203,8 +205,10 @@ Table TeamNotification {
   meetingScheduleId Int [not null]
   teamId Int [not null]
   studentId Int [not null]
-  receiptStatus DateTime
+  receptionStatus Boolean [not null]
   transmissionTime DateTime [not null]
+  receptionTime DateTime
+  notificationContent String [not null]
   teamMeetingSchedule TeamMeetingSchedule [not null]
   team Team [not null]
   student Student [not null]
@@ -219,6 +223,7 @@ Table StudyRoom {
   name String [not null]
   location String [not null]
   StudyRoomDate StudyRoomDate [not null]
+  StudyRoomTime StudyRoomTime [not null]
 }
 
 Table StudyRoomDate {
@@ -230,18 +235,19 @@ Table StudyRoomDate {
 }
 
 Table StudyRoomTime {
-  timeSlot Int [pk, increment]
+  reservationTime Int [pk, increment]
   dateId DateTime [not null]
   roomId Int [not null]
   scheduleID Int [not null]
   startTime DateTime [not null]
   endTime DateTime [not null]
   studyRoomDate StudyRoomDate [not null]
+  studyRoom StudyRoom [not null]
 }
 
 Ref: Student.calendarId - Calendar.id
 
-Ref: Student.ProfessorId - Professor.id
+Ref: Student.ProfessorId > Professor.id
 
 Ref: PersonalSchedule.calenderId - Calendar.id
 
@@ -290,3 +296,5 @@ Ref: TeamNotification.studentId > Student.id
 Ref: StudyRoomDate.roomId > StudyRoom.id
 
 Ref: StudyRoomTime.dateId > StudyRoomDate.date
+
+Ref: StudyRoomTime.roomId > StudyRoom.id

@@ -36,8 +36,11 @@ model Student {
   calendarId                   Int     @unique
   ProfessorId                  Int     @unique
   name                         String
+  contact                      String
   department                   String?
   email                        String  @unique
+  Credits                      Int
+  Grade                        Int
   academicScheduleSubscription Boolean //학사일정 구독여부
 
   calendar                   Calendar                     @relation(fields: [calendarId], references: [id])
@@ -75,7 +78,8 @@ model PersonalSchedule {
   isPublic    Boolean //정보공개여부
   priority    Int //우선순위
 
-  calendar Calendar @relation(fields: [calenderId], references: [id])
+  calendar    Calendar @relation(fields: [calenderId], references: [id])
+  professorId Int?
 }
 
 // 4. 비교과 프로그램 
@@ -135,7 +139,7 @@ model Professor {
   email      String
 
   calendar                Calendar                  @relation(fields: [calendarId], references: [id])
-  Student                 Student?
+  Student                 Student[]
   ProfessorRecommendation ProfessorRecommendation[]
   ReferralProgramInquiry  ReferralProgramInquiry?
 }
@@ -228,7 +232,7 @@ model TeamMeetingSchedule {
   notificationStartSettings String //알림시작설정
   notificationContent       String //알림내용
 
-  teamCalendar          TeamCalendar            @relation(fields: [teamCalendarId], references: [id])
+  TeamCalendar          TeamCalendar            @relation(fields: [teamCalendarId], references: [id])
   TeamMeetingAttendance TeamMeetingAttendance[]
   TeamNotification      TeamNotification[]
 }
@@ -241,9 +245,9 @@ model TeamMeetingAttendance {
   attendanceStatus Boolean //출석여부
   absenceReason    String //결석사유
 
-  schedule TeamMeetingSchedule @relation(fields: [scheduleId], references: [id])
-  team     Team                @relation(fields: [teamId], references: [id])
-  student  Student             @relation(fields: [studentId], references: [id])
+  TeamMeetingSchedule TeamMeetingSchedule @relation(fields: [scheduleId], references: [id])
+  team                Team                @relation(fields: [teamId], references: [id])
+  student             Student             @relation(fields: [studentId], references: [id])
 
   @@id([scheduleId, teamId, studentId])
 }
@@ -272,9 +276,10 @@ model StudyRoom {
   location String //스터디룸 장소
 
   StudyRoomDate StudyRoomDate[]
+  StudyRoomTime StudyRoomTime[]
 }
 
-// 스터디룸 날짜 정보
+// 17. 스터디룸 날짜 정보
 model StudyRoomDate {
   date        DateTime @id
   roomId      Int
@@ -284,9 +289,10 @@ model StudyRoomDate {
   StudyRoomTime StudyRoomTime[]
 }
 
+//18. 스터디룸 시간 정보 
 model StudyRoomTime {
   reservationTime Int      @id @default(autoincrement()) //예약타입
-  dateId          DateTime // 
+  dateId          DateTime
   roomId          Int
   scheduleID      Int
   startTime       DateTime
@@ -294,4 +300,5 @@ model StudyRoomTime {
 
   // 참조 관계 정의
   studyRoomDate StudyRoomDate @relation(fields: [dateId], references: [date])
+  studyRoom     StudyRoom     @relation(fields: [roomId], references: [id])
 }

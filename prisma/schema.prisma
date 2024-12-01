@@ -23,23 +23,24 @@ model Student {
   id                   Int     @id @default(autoincrement())
   calendarId           Int     @unique
   ProfessorId          Int     @unique
+  password             String
   name                 String
-  contact              String
+  phone                String
   department           String?
   email                String  @unique
   Credits              Int
   Grade                Int
   AcademicSubscription Boolean //학사일정 구독여부
 
-  servantleadership         Int?
-  sympatheticcommunication  Int?
-  originality               Int?
-  pliability                Int?
-  knowledgequest            Int?
-  problemsolvingskills      Int?
-  understandingasianculture Int?
-  globalmind                Int?
-  majorcompetency           Int?
+  servantleadership         Float @default(0)
+  sympatheticcommunication  Float @default(0)
+  originality               Float @default(0)
+  pliability                Float @default(0)
+  knowledgequest            Float @default(0)
+  problemsolvingskills      Float @default(0)
+  understandingasianculture Float @default(0)
+  globalmind                Float @default(0)
+  majorcompetency           Float @default(0)
 
   calendar                   Calendar                     @relation(fields: [calendarId], references: [id])
   professor                  Professor                    @relation(fields: [ProfessorId], references: [id])
@@ -76,8 +77,7 @@ model PersonalSchedule {
   isPublic    Boolean //정보공개여부
   priority    Int //우선순위
 
-  calendar    Calendar @relation(fields: [calenderId], references: [id])
-  professorId Int?
+  calendar Calendar @relation(fields: [calenderId], references: [id])
 }
 
 // 4. 비교과 프로그램 
@@ -91,6 +91,7 @@ model Program {
   applicationEndTime   DateTime //접수종료일시
   programManager       String //프로그램 담당자
   target               String // 신청대상
+  post                 String
 
   ProgramApplication         ProgramApplication[]
   PersonalizedRecommendation PersonalizedRecommendation[]
@@ -137,7 +138,7 @@ model Professor {
   email      String
 
   calendar                Calendar                  @relation(fields: [calendarId], references: [id])
-  Student                 Student[]
+  Student                 Student?
   ProfessorRecommendation ProfessorRecommendation[]
   ReferralProgramInquiry  ReferralProgramInquiry?
 }
@@ -154,7 +155,6 @@ model ProfessorRecommendation {
 }
 
 // 9. 교수추천 프로그램 조회
-
 model ReferralProgramInquiry {
   programId            Int      @unique
   professorId          Int      @unique
@@ -231,9 +231,10 @@ model TeamMeetingSchedule {
   notificationStartSettings String //알림시작설정
   notificationContent       String //알림내용
 
-  TeamCalendar          TeamCalendar            @relation(fields: [teamCalendarId], references: [id])
+  teamCalendar          TeamCalendar            @relation(fields: [teamCalendarId], references: [id])
   TeamMeetingAttendance TeamMeetingAttendance[]
   TeamNotification      TeamNotification[]
+  studyRoomTime         StudyRoomTime?          @relation
 }
 
 // 14. 팀 회의 출석 정보
@@ -293,11 +294,12 @@ model StudyRoomTime {
   reservationTime Int      @id @default(autoincrement()) //예약타입
   dateId          DateTime
   roomId          Int
-  scheduleID      Int
+  scheduleID      Int      @unique
   startTime       DateTime
   endTime         DateTime
 
   // 참조 관계 정의
-  studyRoomDate StudyRoomDate @relation(fields: [dateId], references: [date])
-  studyRoom     StudyRoom     @relation(fields: [roomId], references: [id])
+  studyRoomDate       StudyRoomDate       @relation(fields: [dateId], references: [date])
+  studyRoom           StudyRoom           @relation(fields: [roomId], references: [id])
+  teamMeetingSchedule TeamMeetingSchedule @relation(fields: [scheduleID], references: [id]) // 1대1 관계 정의
 }

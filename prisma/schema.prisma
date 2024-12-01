@@ -156,6 +156,7 @@ model ProfessorRecommendation {
 }
 
 // 9. 교수추천 프로그램 조회
+
 model ReferralProgramInquiry {
   programId            Int      @unique
   professorId          Int      @unique

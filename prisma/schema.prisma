@@ -31,6 +31,16 @@ model Student {
   Grade                Int
   AcademicSubscription Boolean //학사일정 구독여부
 
+  servantleadership         Int?
+  sympatheticcommunication  Int?
+  originality               Int?
+  pliability                Int?
+  knowledgequest            Int?
+  problemsolvingskills      Int?
+  understandingasianculture Int?
+  globalmind                Int?
+  majorcompetency           Int?
+
   calendar                   Calendar                     @relation(fields: [calendarId], references: [id])
   professor                  Professor                    @relation(fields: [ProfessorId], references: [id])
   ProgramApplication         ProgramApplication[]

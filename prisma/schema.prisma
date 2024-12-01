@@ -32,16 +32,16 @@ generator erd {
 
 // 1. 학생 정보
 model Student {
-  id                           Int     @id @default(autoincrement())
-  calendarId                   Int     @unique
-  ProfessorId                  Int     @unique
-  name                         String
-  contact                      String
-  department                   String?
-  email                        String  @unique
-  Credits                      Int
-  Grade                        Int
-  academicScheduleSubscription Boolean //학사일정 구독여부
+  id                   Int     @id @default(autoincrement())
+  calendarId           Int     @unique
+  ProfessorId          Int     @unique
+  name                 String
+  contact              String
+  department           String?
+  email                String  @unique
+  Credits              Int
+  Grade                Int
+  AcademicSubscription Boolean //학사일정 구독여부
 
   calendar                   Calendar                     @relation(fields: [calendarId], references: [id])
   professor                  Professor                    @relation(fields: [ProfessorId], references: [id])

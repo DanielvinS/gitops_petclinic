@@ -18,30 +18,27 @@ generator erd {
   provider = "prisma-erd-generator"
 }
 
-// NOTE: SQLite가 enum 지원 안 함
-// enum CoreCompetency {
-//   SERVANTLEADERSHIP
-//   EMPATHICCOMMUNICATION
-//   CREATIVITY
-//   FLEXIBILITY
-//   KNOWLEDGESEEKING
-//   PROBLEMSOLVING
-//   ASIANCULTUREUNDERSTANDING
-//   GLOBALMIND
-// }
-
 // 1. 학생 정보
 model Student {
-  id                   Int     @id @default(autoincrement())
-  calendarId           Int     @unique
-  ProfessorId          Int     @unique
-  name                 String
-  contact              String
-  department           String?
-  email                String  @unique
-  Credits              Int
-  Grade                Int
-  AcademicSubscription Boolean //학사일정 구독여부
+  id                           Int     @id @default(autoincrement())
+  password                     String
+  calendarId                   Int     @unique
+  ProfessorId                  Int     @unique
+  name                         String
+  department                   String
+  email                        String  @unique
+  phone                        String
+  academicScheduleSubscription Boolean //학사일정 구독여부
+
+  servantleadership         Int?
+  sympatheticcommunication  Int?
+  originality               Int?
+  pliability                Int?
+  knowledgequest            Int?
+  problemsolvingskills      Int?
+  understandingasianculture Int?
+  globalmind                Int?
+  majorcompetency           Int?
 
   calendar                   Calendar                     @relation(fields: [calendarId], references: [id])
   professor                  Professor                    @relation(fields: [ProfessorId], references: [id])
@@ -78,8 +75,7 @@ model PersonalSchedule {
   isPublic    Boolean //정보공개여부
   priority    Int //우선순위
 
-  calendar    Calendar @relation(fields: [calenderId], references: [id])
-  professorId Int?
+  calendar Calendar @relation(fields: [calenderId], references: [id])
 }
 
 // 4. 비교과 프로그램 
@@ -139,7 +135,7 @@ model Professor {
   email      String
 
   calendar                Calendar                  @relation(fields: [calendarId], references: [id])
-  Student                 Student[]
+  Student                 Student?
   ProfessorRecommendation ProfessorRecommendation[]
   ReferralProgramInquiry  ReferralProgramInquiry?
 }
@@ -156,7 +152,6 @@ model ProfessorRecommendation {
 }
 
 // 9. 교수추천 프로그램 조회
-
 model ReferralProgramInquiry {
   programId            Int      @unique
   professorId          Int      @unique
@@ -233,7 +228,7 @@ model TeamMeetingSchedule {
   notificationStartSettings String //알림시작설정
   notificationContent       String //알림내용
 
-  TeamCalendar          TeamCalendar            @relation(fields: [teamCalendarId], references: [id])
+  teamCalendar          TeamCalendar            @relation(fields: [teamCalendarId], references: [id])
   TeamMeetingAttendance TeamMeetingAttendance[]
   TeamNotification      TeamNotification[]
 }
